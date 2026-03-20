@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/wii/ii/internal/commands"
 )
 
 var (
@@ -24,6 +25,13 @@ var rootCmd = &cobra.Command{
 		// 如果没有指定子命令，显示帮助信息
 		cmd.Help()
 	},
+}
+
+func init() {
+	// 注册子命令
+	rootCmd.AddCommand(commands.NewInstallCmd())
+	rootCmd.AddCommand(commands.NewListCmd())
+	rootCmd.AddCommand(commands.NewSearchCmd())
 }
 
 func main() {

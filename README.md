@@ -38,15 +38,39 @@ make build
 # 查看帮助
 ii --help
 
-# 安装程序（待实现）
-ii install <program>
-
-# 列出已安装程序（待实现）
+# 列出支持的程序
 ii list
 
-# 更新程序（待实现）
-ii update <program>
+# 安装程序（交互式选择安装方法）
+ii install wireguard
+
+# 安装程序（自动确认，使用最佳安装方法）
+ii install wireguard -y
+
+# 安装程序（指定安装方法）
+ii install wireguard --method brew
+
+# 安装程序（dry-run 模式，只查看将要执行的操作）
+ii install wireguard --dry-run
+
+# 查看安装命令帮助
+ii install --help
 ```
+
+### 支持的安装方法
+
+ii 会自动检测系统上可用的安装方法，并按以下优先级选择：
+
+1. **系统包管理器** - apt, yum, dnf, pacman, zypper 等
+2. **Homebrew** - macOS/Linux 包管理器
+3. **mise** - 多语言版本管理器
+4. **asdf** - 多语言版本管理器
+
+### 已支持的程序
+
+- **wireguard** - 快速、现代的 VPN 技术
+
+更多程序持续添加中...
 
 ## 开发
 
