@@ -80,3 +80,34 @@ func NewSearchCmd() *cobra.Command {
 
 	return cmd
 }
+
+// NewUsageCmd 创建 usage 命令
+func NewUsageCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "usage <program>",
+		Short: "显示程序使用示例",
+		Long:  "显示指定程序的常用使用方式和命令示例",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			programName := args[0]
+
+			// 创建安装器
+			inst := installer.NewInstaller()
+
+			// 获取程序信息
+			program, err := inst.GetProgram(programName)
+			if err != nil {
+				return err
+			}
+
+			// 显示使用示例
+			fmt.Printf("\n%s - 使用示例\n", program.Name())
+			fmt.Printf("%s\n\n", program.Description())
+			fmt.Println(program.GetUsage())
+
+			return nil
+		},
+	}
+
+	return cmd
+}

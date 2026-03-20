@@ -32,6 +32,7 @@ func init() {
 	rootCmd.AddCommand(commands.NewInstallCmd())
 	rootCmd.AddCommand(commands.NewListCmd())
 	rootCmd.AddCommand(commands.NewSearchCmd())
+	rootCmd.AddCommand(commands.NewUsageCmd())
 }
 
 func main() {

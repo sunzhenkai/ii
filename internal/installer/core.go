@@ -244,6 +244,12 @@ func (i *Installer) doInstall(ctx context.Context, program types.Program, method
 	}
 
 	fmt.Printf("\n✓ %s 安装成功!\n", program.Name())
+
+	// 显示使用示例
+	fmt.Printf("\n使用示例:\n")
+	fmt.Println(strings.Repeat("-", 60))
+	fmt.Println(program.GetUsage())
+
 	return nil
 }
 
@@ -280,4 +286,9 @@ func (i *Installer) ListPrograms() {
 	for _, p := range programs {
 		fmt.Printf("  %-20s %s\n", p.Name(), p.Description())
 	}
+}
+
+// GetProgram 获取程序信息
+func (i *Installer) GetProgram(name string) (types.Program, error) {
+	return i.registry.Get(name)
 }

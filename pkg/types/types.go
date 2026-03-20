@@ -41,6 +41,10 @@ type Program interface {
 	// GetSupportedPlatforms 返回支持的平台
 	// 返回: map[操作系统][]架构，如 {"linux": ["amd64", "arm64"]}
 	GetSupportedPlatforms() map[string][]string
+
+	// GetUsage 返回程序的使用示例
+	// 返回使用示例的字符串，可以包含多个示例
+	GetUsage() string
 }
 
 // ProgramInfo 程序信息（用于存储和展示）
