@@ -72,6 +72,9 @@ ii --help
 # 列出支持的程序
 ii list
 
+# 查看程序使用示例
+ii usage wireguard
+
 # 安装程序（交互式选择安装方法）
 ii install wireguard
 
