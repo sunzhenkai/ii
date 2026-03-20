@@ -224,26 +224,26 @@ func (i *Installer) doInstall(ctx context.Context, program types.Program, method
 	// 如果是 dry-run 模式，不实际执行
 	if opts.DryRun {
 		fmt.Println("[Dry Run] 跳过实际安装")
-		return nil
-	}
-
-	// 确认安装（如果没有自动确认）
-	if !opts.Yes {
-		fmt.Printf("确认安装? [y/N]: ")
-		var confirm string
-		fmt.Scanf("%s", &confirm)
-		if strings.ToLower(confirm) != "y" {
-			return fmt.Errorf("用户取消安装")
+		fmt.Printf("\n✓ %s 安装成功! (dry-run)\n", program.Name())
+	} else {
+		// 确认安装（如果没有自动确认）
+		if !opts.Yes {
+			fmt.Printf("确认安装? [y/N]: ")
+			var confirm string
+			fmt.Scanf("%s", &confirm)
+			if strings.ToLower(confirm) != "y" {
+				return fmt.Errorf("用户取消安装")
+			}
 		}
-	}
 
-	// 执行安装
-	err := method.Install(ctx, program.Name(), packageName)
-	if err != nil {
-		return fmt.Errorf("安装失败: %w", err)
-	}
+		// 执行安装
+		err := method.Install(ctx, program.Name(), packageName)
+		if err != nil {
+			return fmt.Errorf("安装失败: %w", err)
+		}
 
-	fmt.Printf("\n✓ %s 安装成功!\n", program.Name())
+		fmt.Printf("\n✓ %s 安装成功!\n", program.Name())
+	}
 
 	// 显示使用示例
 	fmt.Printf("\n使用示例:\n")
