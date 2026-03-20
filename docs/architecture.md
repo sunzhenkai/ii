@@ -126,6 +126,34 @@ func (n *NodeJS) GetSupportedPlatforms() map[string][]string {
         "darwin": {"amd64", "arm64"},
     }
 }
+
+func (n *NodeJS) GetUsage() string {
+    return `常用命令:
+
+1. 查看版本:
+   node --version
+   npm --version
+
+2. 运行 JavaScript 文件:
+   node app.js
+
+3. 初始化项目:
+   npm init
+   npm init -y
+
+4. 安装依赖:
+   npm install
+   npm install <package>
+   npm install -D <package>
+
+5. 运行脚本:
+   npm run <script>
+
+更多信息:
+   node --help
+   npm help
+   https://nodejs.org/`
+}
 ```
 
 2. 在 `internal/programs/registry.go` 中注册：
