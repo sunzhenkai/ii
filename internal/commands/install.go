@@ -48,6 +48,55 @@ func NewInstallCmd() *cobra.Command {
 	return cmd
 }
 
+// NewUninstallCmd 创建 uninstall 命令
+func NewUninstallCmd() *cobra.Command {
+	var uninstallYes bool
+	var uninstallDryRun bool
+
+	cmd := &cobra.Command{
+		Use:   "uninstall <program>",
+		Short: "卸载程序",
+		Long:  "卸载通过 ii 安装的程序",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			programName := args[0]
+
+			// 创建安装器
+			inst := installer.NewInstaller()
+
+			// 卸载选项
+			opts := types.InstallOption{
+				Yes:    uninstallYes,
+				DryRun: uninstallDryRun,
+			}
+
+			// 执行卸载
+			return inst.UninstallProgram(context.Background(), programName, opts)
+		},
+	}
+
+	// 命令行参数
+	cmd.Flags().BoolVarP(&uninstallYes, "yes", "y", false, "自动确认，无需交互")
+	cmd.Flags().BoolVarP(&uninstallDryRun, "dry-run", "d", false, "只展示将要执行的操作，不实际执行")
+
+	return cmd
+}
+
+// NewInstalledCmd 创建 installed 命令
+func NewInstalledCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "installed",
+		Short: "列出已安装的程序",
+		Long:  "列出所有通过 ii 安装的程序",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			inst := installer.NewInstaller()
+			return inst.ListInstalled()
+		},
+	}
+
+	return cmd
+}
+
 // NewListCmd 创建 list 命令
 func NewListCmd() *cobra.Command {
 	cmd := &cobra.Command{

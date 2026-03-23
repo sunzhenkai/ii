@@ -89,6 +89,18 @@ ii install wireguard --dry-run
 
 # 查看安装命令帮助
 ii install --help
+
+# 列出已安装的程序
+ii installed
+
+# 卸载程序（交互式确认）
+ii uninstall wireguard
+
+# 卸载程序（自动确认）
+ii uninstall wireguard -y
+
+# 卸载程序（dry-run 模式，只查看将要执行的操作）
+ii uninstall wireguard --dry-run
 ```
 
 ### 支持的安装方法
@@ -97,12 +109,15 @@ ii 会自动检测系统上可用的安装方法，并按以下优先级选择�
 
 1. **系统包管理器** - apt, yum, dnf, pacman, zypper 等
 2. **Homebrew** - macOS/Linux 包管理器
-3. **mise** - 多语言版本管理器
-4. **asdf** - 多语言版本管理器
+3. **官方脚本** - 官方安装脚本（适用于 Anaconda 等）
+4. **mise** - 多语言版本管理器
+5. **asdf** - 多语言版本管理器
 
 ### 已支持的程序
 
 - **wireguard** - 快速、现代的 VPN 技术
+- **anaconda3** - 用于科学计算的 Python 发行版
+- **ollama** - 在本地运行大语言模型的工具
 
 更多程序持续添加中...
 

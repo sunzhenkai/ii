@@ -82,3 +82,35 @@ func (m *PackageManagerMethod) Install(ctx context.Context, program, packageName
 func (m *PackageManagerMethod) GetInstallInfo(program, packageName string) string {
 	return fmt.Sprintf("使用 %s 安装 %s (包名: %s)", m.Description(), program, packageName)
 }
+
+func (m *PackageManagerMethod) Uninstall(ctx context.Context, program, packageName string) error {
+	var cmd string
+	var args []string
+
+	switch m.pm {
+	case "apt":
+		cmd = "sudo"
+		args = []string{"apt-get", "remove", "-y", packageName}
+	case "yum":
+		cmd = "sudo"
+		args = []string{"yum", "remove", "-y", packageName}
+	case "dnf":
+		cmd = "sudo"
+		args = []string{"dnf", "remove", "-y", packageName}
+	case "pacman":
+		cmd = "sudo"
+		args = []string{"pacman", "-R", "--noconfirm", packageName}
+	case "zypper":
+		cmd = "sudo"
+		args = []string{"zypper", "remove", "-y", packageName}
+	default:
+		return fmt.Errorf("不支持的包管理器: %s", m.pm)
+	}
+
+	output, err := utils.RunCommand(cmd, args...)
+	if err != nil {
+		return fmt.Errorf("卸载失败: %w\n输出: %s", err, output)
+	}
+
+	return nil
+}

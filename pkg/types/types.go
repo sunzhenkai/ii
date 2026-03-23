@@ -22,6 +22,11 @@ type InstallMethod interface {
 	// GetInstallInfo 获取安装信息（用于向用户展示）
 	// 返回：安装位置、版本等信息的描述
 	GetInstallInfo(program, packageName string) string
+
+	// Uninstall 执行卸载
+	// program: 程序名称
+	// packageName: 在该安装方法中的包名（可能与程序名不同）
+	Uninstall(ctx context.Context, program, packageName string) error
 }
 
 // Program 程序定义接口
