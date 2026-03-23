@@ -48,3 +48,11 @@ func (m *MiseMethod) GetInstallInfo(program, packageName string) string {
 
 	return info
 }
+
+func (m *MiseMethod) Uninstall(ctx context.Context, program, packageName string) error {
+	output, err := utils.RunCommand("mise", "uninstall", packageName)
+	if err != nil {
+		return fmt.Errorf("卸载失败: %w\n输出: %s", err, output)
+	}
+	return nil
+}

@@ -51,6 +51,12 @@ func (r *Registry) registerAll() {
 	// 注册 WireGuard
 	r.Register(NewWireGuard())
 
+	// 注册 Anaconda3
+	r.Register(NewAnaconda3())
+
+	// 注册 Ollama
+	r.Register(NewOllama())
+
 	// 后续可以在这里添加更多程序
 	// r.Register(NewNodejs())
 	// r.Register(NewPython())

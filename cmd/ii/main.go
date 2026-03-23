@@ -30,6 +30,8 @@ var rootCmd = &cobra.Command{
 func init() {
 	// 注册子命令
 	rootCmd.AddCommand(commands.NewInstallCmd())
+	rootCmd.AddCommand(commands.NewUninstallCmd())
+	rootCmd.AddCommand(commands.NewInstalledCmd())
 	rootCmd.AddCommand(commands.NewListCmd())
 	rootCmd.AddCommand(commands.NewSearchCmd())
 	rootCmd.AddCommand(commands.NewUsageCmd())

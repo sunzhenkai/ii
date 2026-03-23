@@ -42,3 +42,11 @@ func (m *BrewMethod) GetInstallInfo(program, packageName string) string {
 	}
 	return fmt.Sprintf("使用 Homebrew 安装 %s (包名: %s)\n安装位置: %s", program, packageName, prefix)
 }
+
+func (m *BrewMethod) Uninstall(ctx context.Context, program, packageName string) error {
+	output, err := utils.RunCommand("brew", "uninstall", packageName)
+	if err != nil {
+		return fmt.Errorf("卸载失败: %w\n输出: %s", err, output)
+	}
+	return nil
+}

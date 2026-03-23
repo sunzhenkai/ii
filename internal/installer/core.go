@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/wii/ii/internal/config"
 	"github.com/wii/ii/internal/installer/methods"
 	"github.com/wii/ii/internal/programs"
 	"github.com/wii/ii/internal/utils"
@@ -17,6 +18,7 @@ type Installer struct {
 	registry   *programs.Registry
 	osInfo     *utils.OSInfo
 	allMethods map[string]types.InstallMethod
+	configMgr  *config.ConfigManager
 }
 
 // NewInstaller 创建安装器
@@ -25,6 +27,7 @@ func NewInstaller() *Installer {
 		registry:   programs.NewRegistry(),
 		osInfo:     utils.GetOSInfo(),
 		allMethods: make(map[string]types.InstallMethod),
+		configMgr:  config.NewConfigManager(),
 	}
 
 	// 注册所有安装方法
@@ -46,6 +49,10 @@ func (i *Installer) registerMethods() {
 	i.allMethods["brew"] = methods.NewBrewMethod()
 	i.allMethods["mise"] = methods.NewMiseMethod()
 	i.allMethods["asdf"] = methods.NewAsdfMethod()
+
+	// 注册脚本安装方法
+	i.allMethods["anaconda-script"] = methods.NewAnacondaScriptMethod()
+	i.allMethods["ollama-script"] = methods.NewOllamaScriptMethod()
 }
 
 // GetAvailableMethods 获取程序可用的安装方法
@@ -53,10 +60,12 @@ func (i *Installer) GetAvailableMethods(program types.Program) []types.InstallMe
 	supportedMethods := program.GetInstallMethods()
 	available := []types.InstallMethod{}
 
-	// 按优先级排序：系统包管理器 > brew > mise > asdf
+	// 按优先级排序：系统包管理器 > brew > 程序特定脚本 > mise > asdf
 	priority := []string{
 		utils.GetPackageManager(), // 系统包管理器优先
 		"brew",
+		"anaconda-script", // Anaconda 脚本安装
+		"ollama-script",   // Ollama 脚本安装
 		"mise",
 		"asdf",
 	}
@@ -242,6 +251,11 @@ func (i *Installer) doInstall(ctx context.Context, program types.Program, method
 			return fmt.Errorf("安装失败: %w", err)
 		}
 
+		// 记录安装信息
+		if err := i.configMgr.RecordInstall(program.Name(), packageName, method.Name()); err != nil {
+			fmt.Printf("警告: 无法记录安装信息: %v\n", err)
+		}
+
 		fmt.Printf("\n✓ %s 安装成功!\n", program.Name())
 	}
 
@@ -291,4 +305,89 @@ func (i *Installer) ListPrograms() {
 // GetProgram 获取程序信息
 func (i *Installer) GetProgram(name string) (types.Program, error) {
 	return i.registry.Get(name)
+}
+
+// UninstallProgram 卸载程序
+func (i *Installer) UninstallProgram(ctx context.Context, programName string, opts types.InstallOption) error {
+	// 获取已安装程序信息
+	installedInfo, err := i.configMgr.GetInstalledProgram(programName)
+	if err != nil {
+		return fmt.Errorf("获取安装信息失败: %w", err)
+	}
+
+	if installedInfo == nil {
+		return fmt.Errorf("程序 %s 未通过 ii 安装，无法卸载", programName)
+	}
+
+	// 获取安装方法
+	method, exists := i.allMethods[installedInfo.Method]
+	if !exists {
+		return fmt.Errorf("未知的安装方法: %s", installedInfo.Method)
+	}
+
+	fmt.Printf("\n开始卸载...\n")
+	fmt.Printf("程序: %s\n", programName)
+	fmt.Printf("安装方法: %s\n", installedInfo.Method)
+	fmt.Printf("包名: %s\n", installedInfo.PackageName)
+	fmt.Printf("安装时间: %s\n\n", installedInfo.InstallTime.Format("2006-01-02 15:04:05"))
+
+	// 如果是 dry-run 模式
+	if opts.DryRun {
+		fmt.Println("[Dry Run] 跳过实际卸载")
+		fmt.Printf("\n✓ %s 卸载成功! (dry-run)\n", programName)
+		return nil
+	}
+
+	// 确认卸载
+	if !opts.Yes {
+		fmt.Printf("确认卸载? [y/N]: ")
+		var confirm string
+		fmt.Scanf("%s", &confirm)
+		if strings.ToLower(confirm) != "y" {
+			return fmt.Errorf("用户取消卸载")
+		}
+	}
+
+	// 执行卸载
+	err = method.Uninstall(ctx, programName, installedInfo.PackageName)
+	if err != nil {
+		return fmt.Errorf("卸载失败: %w", err)
+	}
+
+	// 从记录中移除
+	if err := i.configMgr.RemoveInstalledProgram(programName); err != nil {
+		fmt.Printf("警告: 无法移除安装记录: %v\n", err)
+	}
+
+	fmt.Printf("\n✓ %s 卸载成功!\n", programName)
+
+	return nil
+}
+
+// ListInstalled 列出已安装的程序
+func (i *Installer) ListInstalled() error {
+	programs, err := i.configMgr.ListInstalledPrograms()
+	if err != nil {
+		return err
+	}
+
+	if len(programs) == 0 {
+		fmt.Println("没有通过 ii 安装的程序")
+		return nil
+	}
+
+	fmt.Println("已安装的程序:")
+	fmt.Println(strings.Repeat("-", 60))
+
+	// 按名称排序
+	sort.Slice(programs, func(i, j int) bool {
+		return programs[i].Name < programs[j].Name
+	})
+
+	for _, p := range programs {
+		fmt.Printf("  %-20s (通过 %s 安装, 包名: %s)\n", p.Name, p.Method, p.PackageName)
+		fmt.Printf("    安装时间: %s\n", p.InstallTime.Format("2006-01-02 15:04:05"))
+	}
+
+	return nil
 }

@@ -75,3 +75,22 @@ func (m *AsdfMethod) GetInstallInfo(program, packageName string) string {
 	info += fmt.Sprintf("\n安装位置: %s", asdfDir)
 	return info
 }
+
+func (m *AsdfMethod) Uninstall(ctx context.Context, program, packageName string) error {
+	// packageName 格式可能是 "plugin" 或 "plugin/version"
+	parts := strings.Split(packageName, "/")
+
+	// asdf uninstall plugin [version]
+	uninstallArgs := []string{"uninstall"}
+	uninstallArgs = append(uninstallArgs, parts...)
+
+	output, err := utils.RunCommand("asdf", uninstallArgs...)
+	if err != nil {
+		return fmt.Errorf("卸载失败: %w\n输出: %s", err, output)
+	}
+
+	// 如果是最后一个版本，可以选择移除插件（这里暂不自动移除插件）
+	// 用户可以手动执行: asdf plugin remove <plugin-name>
+
+	return nil
+}
